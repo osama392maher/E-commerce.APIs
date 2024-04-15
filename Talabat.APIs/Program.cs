@@ -5,7 +5,7 @@ namespace Talabat.APIs
 {
 	public class Program
 	{
-		public static void Main(string[] args)
+		public static async Task Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +37,24 @@ namespace Talabat.APIs
 			app.MapControllers();
 
 			app.Run();
+
+			using var scope = app.Services.CreateScope();
+			var services = scope.ServiceProvider;
+
+			var context = services.GetRequiredService<StoreContext>();
+			// logger
+			var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+			try
+			{
+				await context.Database.MigrateAsync();
+				await StoreContextSeeding.SeedAsync(context);
+			}
+			catch (Exception ex)
+			{
+				var logger = loggerFactory.CreateLogger<Program>();
+				logger.LogError(ex, "An error occurred during migration");
+			}
 		}
 	}
 }
