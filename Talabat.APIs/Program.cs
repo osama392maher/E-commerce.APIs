@@ -7,6 +7,8 @@ namespace Talabat.APIs
 	{
 		public static async Task Main(string[] args)
 		{
+
+			#region Configure Services 
 			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container.
@@ -20,7 +22,32 @@ namespace Talabat.APIs
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 			});
 
+			#endregion
+
+
 			var app = builder.Build();
+
+			#region Update Database (Apply All migrations, if found)
+			using var scope = app.Services.CreateScope();
+			var services = scope.ServiceProvider;
+
+			var context = services.GetRequiredService<StoreContext>();
+			var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+			try
+			{
+				context.Database.Migrate();
+			}
+			catch (Exception ex)
+			{
+				var logger = loggerFactory.CreateLogger<Program>();
+				logger.LogError(ex, "An error occurred during migration");
+			}
+			await StoreContextSeeding.SeedAsync(context); // Static Class , Seed Data
+			#endregion
+
+
+			#region Configure Pipelines
 
 			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
@@ -35,26 +62,10 @@ namespace Talabat.APIs
 
 
 			app.MapControllers();
+			#endregion
 
 			app.Run();
 
-			using var scope = app.Services.CreateScope();
-			var services = scope.ServiceProvider;
-
-			var context = services.GetRequiredService<StoreContext>();
-			// logger
-			var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-
-			try
-			{
-				await context.Database.MigrateAsync();
-				await StoreContextSeeding.SeedAsync(context);
-			}
-			catch (Exception ex)
-			{
-				var logger = loggerFactory.CreateLogger<Program>();
-				logger.LogError(ex, "An error occurred during migration");
-			}
 		}
 	}
 }
