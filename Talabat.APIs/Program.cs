@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Talabat.APIs.Mappers;
 using Talabat.Domain.Repository;
 using Talabat.Repository;
 using Talabat.Repository.Data;
@@ -26,6 +27,10 @@ namespace Talabat.APIs
             });
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+            builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));
+
+            builder.Services.AddTransient<ProductPictureUrlResolver>();
 
 
             #endregion
@@ -65,6 +70,7 @@ namespace Talabat.APIs
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+            app.UseStaticFiles();
 
 
             app.MapControllers();
