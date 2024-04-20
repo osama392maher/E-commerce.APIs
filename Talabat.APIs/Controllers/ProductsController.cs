@@ -22,7 +22,7 @@ namespace Talabat.APIs.Controllers
             (IGenericRepository<Product> productRepo,
             IGenericRepository<ProductBrand> brandsRepo,
             IGenericRepository<ProductCategory> categoriesRepo,
-            , IMapper mapper)
+            IMapper mapper)
         {
             productsRepo = productRepo;
             this.brandsRepo = brandsRepo;
@@ -31,9 +31,9 @@ namespace Talabat.APIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDTO>>> GetAllProducts()
+        public async Task<ActionResult<IReadOnlyList<ProductToReturnDTO>>> GetAllProducts(string? sort)
         {
-            var prodcuts = await productsRepo.GetAllWithSpecAsync(new ProductWithBrandAndCategorySpecifications());
+            var prodcuts = await productsRepo.GetAllWithSpecAsync(new ProductWithBrandAndCategorySpecifications(sort));
 
             var productsToReturn = mapper.Map<IReadOnlyList<ProductToReturnDTO>>(prodcuts);
 

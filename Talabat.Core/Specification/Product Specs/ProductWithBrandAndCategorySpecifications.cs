@@ -9,6 +9,32 @@ namespace Talabat.Domain.Specification.Product_Specs
 {
     public class ProductWithBrandAndCategorySpecifications : BaseSpecifications<Product>
     {
+
+        public ProductWithBrandAndCategorySpecifications(string? sort)
+            : base()
+        {
+            Includes.Add(x => x.Brand);
+            Includes.Add(x => x.Category);
+
+            if (!string.IsNullOrEmpty(sort))
+                switch (sort)
+                {
+                    case "priceAsc":
+                        OrderBy = P => P.Price;
+                        break;
+                    case "priceDesc":
+                        OrderByDesc = P => P.Price;
+                        break;
+                    case "nameDesc":
+                        OrderByDesc = P => P.Name;
+                        break;
+                    default:
+                        OrderBy = P => P.Name;
+                        break;
+                }
+            else
+                OrderBy = P => P.Name;
+        }
         public ProductWithBrandAndCategorySpecifications()
         {
             Includes.Add(x => x.Brand);
