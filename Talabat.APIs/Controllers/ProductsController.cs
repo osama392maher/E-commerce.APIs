@@ -14,20 +14,28 @@ namespace Talabat.APIs.Controllers
     public class ProductsController : BaseApiController
     {
         private readonly IGenericRepository<Product> productsRepo;
+        private readonly IGenericRepository<ProductBrand> brandsRepo;
+        private readonly IGenericRepository<ProductCategory> categoriesRepo;
         private readonly IMapper mapper;
 
-        public ProductsController(IGenericRepository<Product> productRepo, IMapper mapper)
+        public ProductsController
+            (IGenericRepository<Product> productRepo,
+            IGenericRepository<ProductBrand> brandsRepo,
+            IGenericRepository<ProductCategory> categoriesRepo,
+            , IMapper mapper)
         {
             productsRepo = productRepo;
+            this.brandsRepo = brandsRepo;
+            this.categoriesRepo = categoriesRepo;
             this.mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductToReturnDTO>>> GetAllProducts()
+        public async Task<ActionResult<IReadOnlyList<ProductToReturnDTO>>> GetAllProducts()
         {
             var prodcuts = await productsRepo.GetAllWithSpecAsync(new ProductWithBrandAndCategorySpecifications());
 
-            var productsToReturn = mapper.Map<IEnumerable<ProductToReturnDTO>>(prodcuts);
+            var productsToReturn = mapper.Map<IReadOnlyList<ProductToReturnDTO>>(prodcuts);
 
             return Ok(productsToReturn);
         }
@@ -47,5 +55,18 @@ namespace Talabat.APIs.Controllers
             return Ok(productsToReturn);
         }
 
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetBrands()
+        {
+            var brands = await brandsRepo.GetAllAsync();
+            return Ok(brands);
+        }
+
+        [HttpGet("categories")]
+        public async Task<ActionResult<IReadOnlyList<ProductCategory>>> GetCategories()
+        {
+            var categories = await categoriesRepo.GetAllAsync();
+            return Ok(categories);
+        }
     }
 }
