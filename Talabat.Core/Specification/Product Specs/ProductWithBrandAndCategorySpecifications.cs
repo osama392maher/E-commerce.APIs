@@ -10,8 +10,9 @@ namespace Talabat.Domain.Specification.Product_Specs
     public class ProductWithBrandAndCategorySpecifications : BaseSpecifications<Product>
     {
 
-        public ProductWithBrandAndCategorySpecifications(string? sort)
-            : base()
+        public ProductWithBrandAndCategorySpecifications(string? sort, int? brandid, int? categoryid)
+            : base(x => (!brandid.HasValue || x.BrandId == brandid) &&
+                            (!categoryid.HasValue || x.CategoryId == categoryid))
         {
             Includes.Add(x => x.Brand);
             Includes.Add(x => x.Category);
