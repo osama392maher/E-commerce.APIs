@@ -21,5 +21,7 @@ namespace Talabat.Domain.Repository
         Task<T?> GetByIdAsyncWithSpecAsync(ISpecifications<T> spec);
         #endregion
 
+        Task<int> GetCountAsync(ISpecifications<T> spec);
+
     }
 }

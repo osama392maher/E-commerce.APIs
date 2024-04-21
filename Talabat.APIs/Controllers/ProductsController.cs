@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Talabat.APIs.DTOs;
 using Talabat.APIs.Errors;
+using Talabat.APIs.Helpers;
 using Talabat.Core.Entities;
 using Talabat.Domain.Repository;
 using Talabat.Domain.Specification.Product_Specs;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Talabat.APIs.Controllers
 {
@@ -31,13 +33,15 @@ namespace Talabat.APIs.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDTO>>> GetAllProducts(string? sort, int? brandid, int? categoryid)
+        public async Task<ActionResult<Pagination<IReadOnlyList<ProductToReturnDTO>>>> GetAllProducts([FromQuery] ProductSpecParams specParams)
         {
-            var prodcuts = await productsRepo.GetAllWithSpecAsync(new ProductWithBrandAndCategorySpecifications(sort, brandid, categoryid));
+            var specs = new ProductWithBrandAndCategorySpecifications(specParams);
+
+            var prodcuts = await productsRepo.GetAllWithSpecAsync(specs);
 
             var productsToReturn = mapper.Map<IReadOnlyList<ProductToReturnDTO>>(prodcuts);
 
-            return Ok(productsToReturn);
+            return Ok(new Pagination<ProductToReturnDTO>(specParams.PageIndex, specParams.PageSize, specs.AllCount, productsToReturn));
         }
 
         [ProducesResponseType(typeof(ProductToReturnDTO), StatusCodes.Status200OK)]
@@ -48,7 +52,7 @@ namespace Talabat.APIs.Controllers
         {
             var product = await productsRepo.GetByIdAsyncWithSpecAsync(new ProductWithBrandAndCategorySpecifications(id));
 
-            if (product == null)
+            if (product is null)
                 return NotFound(new ApiResponse(404)); //404
 
             var productsToReturn = mapper.Map<ProductToReturnDTO>(product);

@@ -8,6 +8,8 @@ namespace Talabat.APIs.Controllers
 {
     //    [Route("api/[controller]")]
     //    [ApiController]
+
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class BuggyController : BaseApiController
     {
         private readonly StoreContext _dbContext;

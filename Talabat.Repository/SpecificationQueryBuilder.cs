@@ -13,6 +13,9 @@ namespace Talabat.Repository
     {
         public static IQueryable<T> ApplySpecification(IQueryable<T> query, ISpecifications<T> spec)
         {
+
+            spec.AllCount = query.Count();
+
             if (spec.Criteria != null)
                 query = query.Where(spec.Criteria);
 
@@ -22,6 +25,9 @@ namespace Talabat.Repository
                 query = query.OrderBy(spec.OrderBy);
             else if (spec.OrderByDesc is not null)
                 query = query.OrderByDescending(spec.OrderByDesc);
+
+            if (spec.IsPaginationEnabled)
+                query = query.Skip(spec.Skip).Take(spec.Take);
 
             return query;
         }

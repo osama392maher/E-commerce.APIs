@@ -2,7 +2,7 @@
 using Talabat.APIs.DTOs;
 using Talabat.Core.Entities;
 
-namespace Talabat.APIs.Mappers
+namespace Talabat.APIs.Helpers
 {
     public class ProductPictureUrlResolver : IValueResolver<Product, ProductToReturnDTO, string>
     {
